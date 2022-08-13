@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
+import { PasswordEncoder } from 'src/utils/password-encoder.util';
 
 /**
  * 인증 Service
@@ -15,6 +16,7 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private passwordEncoder: PasswordEncoder,
   ) {}
 
   /**
@@ -25,7 +27,7 @@ export class AuthService {
    */
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.userService.getUser(username);
-    if (user && user.password === pass) {
+    if (user && this.passwordEncoder.compare(pass, user.password)) {
       const { password, ...result } = user;
       return result;
     }
