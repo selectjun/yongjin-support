@@ -5,7 +5,9 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { BoardModule } from './board/board.module';
 import { validate } from './env.validation';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
   imports: [
@@ -13,9 +15,19 @@ import { ConfigModule } from '@nestjs/config';
       validate,
       isGlobal: true,
     }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (config: ConfigService) => ({
+        uri: config.get('MONGO_URL'),
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      }),
+      inject: [ConfigService],
+    }),
     AuthModule,
     UserModule,
     BoardModule,
+    UtilsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
