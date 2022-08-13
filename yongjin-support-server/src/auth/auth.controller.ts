@@ -21,7 +21,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
  * 인증 Controller
  */
 @ApiTags('auth')
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   /**
    * 생성자

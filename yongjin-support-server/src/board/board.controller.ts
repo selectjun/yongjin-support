@@ -32,7 +32,7 @@ import { UpdateBoardDto } from './dtos/update-board.dto';
  * 게시판 Controller
  */
 @ApiTags('board')
-@Controller('board')
+@Controller('api/board')
 export class BoardController {
   /**
    * 생성자

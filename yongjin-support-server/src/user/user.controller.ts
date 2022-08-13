@@ -25,7 +25,7 @@ import { UserService } from './user.service';
  * 사용자 Controller
  */
 @ApiTags('user')
-@Controller('user')
+@Controller('api/user')
 export class UserController {
   /**
    * 생성자
