@@ -7,6 +7,9 @@ import { IsString, validateSync } from 'class-validator';
 class EnvironmentVariables {
   @IsString()
   MONGO_URL: string;
+
+  @IsString()
+  JWT_SECRET: string;
 }
 
 /**
