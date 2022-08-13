@@ -16,7 +16,6 @@ import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiParam,
-  ApiProperty,
   ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -43,6 +42,8 @@ export class BoardController {
 
   /**
    * 게시물 조회
+   * @param _id 게시물 ObjectId
+   * @returns
    */
   @ApiOkResponse({
     description: '게시물을 조회하였습니다.',
@@ -66,6 +67,9 @@ export class BoardController {
 
   /**
    * 게시물 목록 조회
+   * @param user 사용자 정보
+   * @param page 게시물 페이지
+   * @returns
    */
   @ApiOkResponse({
     description: '게시물 목록을 조회하였습니다.',
@@ -93,6 +97,9 @@ export class BoardController {
 
   /**
    * 게시물 생성
+   * @param user 사용자 정보
+   * @param createBoardDto 사용자 생성 데이터
+   * @returns
    */
   @ApiCreatedResponse({
     description: '게시물이 생성되었습니다.',
@@ -122,6 +129,10 @@ export class BoardController {
 
   /**
    * 게시물 수정
+   * @param user 사용자 정보
+   * @param _id 게시물 ObjectId
+   * @param updateBoardDto 게시물 수정 데이터
+   * @returns
    */
   @ApiOkResponse({
     description: '게시물 수정을 하였습니다.',
@@ -157,6 +168,9 @@ export class BoardController {
 
   /**
    * 게시물 삭제
+   * @param user 사용자 정보
+   * @param _id 게시물 ObjectId
+   * @returns
    */
   @ApiOkResponse({
     description: '게시물 목록을 조회하였습니다.',

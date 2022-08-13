@@ -5,7 +5,6 @@ import {
   HttpException,
   HttpStatus,
   Post,
-  Request,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -18,6 +17,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ReqUser } from 'src/common/decorators/req-user.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
 
@@ -66,9 +66,14 @@ export class UserController {
 
     const user = await this.userService.createUser(createUserDto);
 
-    return user;
+    return { user };
   }
 
+  /**
+   * 사용자 조회
+   * @param user 사용자 정보
+   * @returns 사용자 정보
+   */
   @ApiOkResponse({
     description: '사용자를 조회하였습니다.',
   })
@@ -80,7 +85,7 @@ export class UserController {
   })
   @UseGuards(JwtAuthGuard)
   @Get('')
-  async getUser(@Request() req) {
-    return req.user;
+  async getUser(@ReqUser() user) {
+    return { user };
   }
 }

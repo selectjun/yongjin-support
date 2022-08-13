@@ -1,7 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, Matches } from 'class-validator';
 
+/**
+ * 사용자 생성 Dto
+ */
 export class CreateUserDto {
+  /**
+   * 아이디
+   */
   @ApiProperty({
     description: '아이디',
     type: String,
@@ -9,6 +15,9 @@ export class CreateUserDto {
   @IsNotEmpty({ message: '아이디를 입력해주세요.' })
   username: string;
 
+  /**
+   * 비밀번호
+   */
   @ApiProperty({
     description: '비밀번호',
     type: String,
@@ -20,6 +29,9 @@ export class CreateUserDto {
   })
   password: string;
 
+  /**
+   * 닉네임
+   */
   @ApiProperty({
     description: '닉네임',
     type: String,

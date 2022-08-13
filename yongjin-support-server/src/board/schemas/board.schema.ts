@@ -8,7 +8,7 @@ import { User } from 'src/user/schemas/user.schema';
 export type BoardDocument = Board & Document;
 
 /**
- * 게시판 Schema
+ * 게시판
  */
 @Schema()
 export class Board {
@@ -55,4 +55,7 @@ export class Board {
   updated_at: Date;
 }
 
+/**
+ * 게시판 Schema
+ */
 export const BoardSchema = SchemaFactory.createForClass(Board);

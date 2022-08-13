@@ -5,9 +5,15 @@ import { IsString, validateSync } from 'class-validator';
  * 설정 검증 규칙
  */
 class EnvironmentVariables {
+  /**
+   * MongoDB URL
+   */
   @IsString()
   MONGO_URL: string;
 
+  /**
+   * JWT Secret
+   */
   @IsString()
   JWT_SECRET: string;
 }

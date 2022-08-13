@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Header,
   Headers,
   Post,
   Request,
@@ -25,7 +24,8 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 @Controller('auth')
 export class AuthController {
   /**
-   * 인증 Service
+   * 생성자
+   * @param authService 인증 Service
    */
   constructor(private authService: AuthService) {}
 
@@ -56,6 +56,12 @@ export class AuthController {
    * @param headers 헤더
    * @returns 토큰
    */
+  @ApiCreatedResponse({
+    description: '토큰 갱신에 성공하였습니다.',
+  })
+  @ApiUnauthorizedResponse({
+    description: '토큰 갱신에 실패하였습니다.',
+  })
   @UseGuards(JwtAuthGuard)
   @Post('refresh')
   async refreshToken(@Headers() headers: any) {
