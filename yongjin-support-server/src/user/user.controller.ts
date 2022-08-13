@@ -1,10 +1,14 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
 
@@ -24,7 +28,7 @@ export class UserController {
    * @param createUserDto 사용자 생성 데이터
    * @returns 사용자 정보
    */
-  @Post()
+  @Post('')
   async createUser(@Body() createUserDto: CreateUserDto) {
     // 회원 중복 확인
     const isExistUser = await this.userService.isExistUser(
@@ -37,10 +41,14 @@ export class UserController {
       );
     }
 
-    // TODO: 비밀번호 암호화
-
     const user = await this.userService.createUser(createUserDto);
 
     return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('')
+  async getUser(@Request() req) {
+    return req.user;
   }
 }

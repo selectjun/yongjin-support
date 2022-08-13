@@ -7,6 +7,7 @@ import { BoardModule } from './board/board.module';
 import { validate } from './env.validation';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     AuthModule,
     UserModule,
     BoardModule,
+    UtilsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
