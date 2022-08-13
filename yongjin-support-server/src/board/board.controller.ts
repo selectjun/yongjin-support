@@ -76,7 +76,7 @@ export class BoardController {
   @ApiInternalServerErrorResponse({
     description: '알 수 없는 에러가 발생하였습니다.',
   })
-  @ApiParam({ name: 'page' })
+  @ApiQuery({ name: 'page', type: Number })
   @UseGuards(JwtAuthGuard)
   @Get()
   async getBoardList(@ReqUser() user, @Query('page') page: number = 1) {
@@ -106,7 +106,7 @@ export class BoardController {
   @ApiInternalServerErrorResponse({
     description: '알 수 없는 에러가 발생하였습니다.',
   })
-  @ApiQuery({ name: 'page' })
+  @ApiBody({ type: CreateBoardDto })
   @UseGuards(JwtAuthGuard)
   @Post()
   async createBoard(@ReqUser() user, @Body() createBoardDto: CreateBoardDto) {
@@ -136,6 +136,7 @@ export class BoardController {
     description: '알 수 없는 에러가 발생하였습니다.',
   })
   @ApiParam({ name: '_id', description: '게시물 ID' })
+  @ApiBody({ type: UpdateBoardDto })
   @UseGuards(JwtAuthGuard)
   @Patch(':_id')
   async updateBoard(

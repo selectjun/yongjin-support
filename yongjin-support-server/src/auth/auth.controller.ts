@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Header,
   Headers,
@@ -6,8 +7,14 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dtos/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 
@@ -27,9 +34,17 @@ export class AuthController {
    * @param req 요청 객체
    * @returns 로그인 정보
    */
+  @ApiCreatedResponse({
+    description: '로그인에 성공하였습니다.',
+  })
+  @ApiUnauthorizedResponse({
+    description: '로그인에 실패하였습니다.',
+  })
+  @ApiBody({ type: LoginDto })
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req) {
+  async login(@Request() req, @Body() loginDto: LoginDto) {
+    console.log(req);
     const user = await this.authService.login(req.user);
     const { password, ...result } = user;
 
