@@ -9,6 +9,18 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiProperty,
+  ApiQuery,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Types } from 'mongoose';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BOARD_BLOCK_SIZE } from 'src/common/constants';
@@ -20,6 +32,7 @@ import { UpdateBoardDto } from './dtos/update-board.dto';
 /**
  * 게시판 Controller
  */
+@ApiTags('board')
 @Controller('board')
 export class BoardController {
   /**
@@ -31,6 +44,16 @@ export class BoardController {
   /**
    * 게시물 조회
    */
+  @ApiOkResponse({
+    description: '게시물을 조회하였습니다.',
+  })
+  @ApiUnauthorizedResponse({
+    description: '권한이 없습니다.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: '알 수 없는 에러가 발생하였습니다.',
+  })
+  @ApiParam({ name: '_id' })
   @UseGuards(JwtAuthGuard)
   @Get(':_id')
   async getBoard(@Param('_id') _id: Types.ObjectId) {
@@ -44,6 +67,16 @@ export class BoardController {
   /**
    * 게시물 목록 조회
    */
+  @ApiOkResponse({
+    description: '게시물 목록을 조회하였습니다.',
+  })
+  @ApiUnauthorizedResponse({
+    description: '권한이 없습니다.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: '알 수 없는 에러가 발생하였습니다.',
+  })
+  @ApiParam({ name: 'page' })
   @UseGuards(JwtAuthGuard)
   @Get()
   async getBoardList(@ReqUser() user, @Query('page') page: number = 1) {
@@ -61,6 +94,19 @@ export class BoardController {
   /**
    * 게시물 생성
    */
+  @ApiCreatedResponse({
+    description: '게시물이 생성되었습니다.',
+  })
+  @ApiBadRequestResponse({
+    description: '요청 데이터가 누락되었습니다.',
+  })
+  @ApiUnauthorizedResponse({
+    description: '권한이 없습니다.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: '알 수 없는 에러가 발생하였습니다.',
+  })
+  @ApiQuery({ name: 'page' })
   @UseGuards(JwtAuthGuard)
   @Post()
   async createBoard(@ReqUser() user, @Body() createBoardDto: CreateBoardDto) {
@@ -77,6 +123,19 @@ export class BoardController {
   /**
    * 게시물 수정
    */
+  @ApiOkResponse({
+    description: '게시물 수정을 하였습니다.',
+  })
+  @ApiBadRequestResponse({
+    description: '요청 데이터가 누락되었습니다.',
+  })
+  @ApiUnauthorizedResponse({
+    description: '권한이 없습니다.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: '알 수 없는 에러가 발생하였습니다.',
+  })
+  @ApiParam({ name: '_id', description: '게시물 ID' })
   @UseGuards(JwtAuthGuard)
   @Patch(':_id')
   async updateBoard(
@@ -98,6 +157,15 @@ export class BoardController {
   /**
    * 게시물 삭제
    */
+  @ApiOkResponse({
+    description: '게시물 목록을 조회하였습니다.',
+  })
+  @ApiUnauthorizedResponse({
+    description: '권한이 없습니다.',
+  })
+  @ApiInternalServerErrorResponse({
+    description: '알 수 없는 에러가 발생하였습니다.',
+  })
   @UseGuards(JwtAuthGuard)
   @Delete(':_id')
   async deleteBoard(@ReqUser() user, @Param('_id') _id: Types.ObjectId) {

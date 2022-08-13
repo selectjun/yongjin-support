@@ -6,6 +6,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -13,6 +14,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 /**
  * 인증 Controller
  */
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   /**
