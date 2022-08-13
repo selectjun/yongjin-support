@@ -45,7 +45,7 @@ export class UserService {
 
     await user.save();
 
-    const nextUser = await this.userModel.findOne({ _id: user._id }).lean();
+    const nextUser = await this.getUser(user._id);
     const { password, ...result } = nextUser;
 
     return result;
