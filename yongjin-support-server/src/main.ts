@@ -6,6 +6,9 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Cors
+  app.enableCors();
+
   // 유효성 검증 설정
   app.useGlobalPipes(new ValidationPipe());
 
