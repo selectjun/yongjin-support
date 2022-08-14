@@ -20,7 +20,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 /**
  * 인증 Controller
  */
-@ApiTags('auth')
+@ApiTags('api/auth')
 @Controller('api/auth')
 export class AuthController {
   /**
