@@ -1,5 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import {
+  Attachements,
+  AttachementsSchema,
+} from 'src/common/subschemas/attachments.subschema';
 import { User } from 'src/user/schemas/user.schema';
 
 /**
@@ -13,16 +17,22 @@ export type BoardDocument = Board & Document;
 @Schema()
 export class Board {
   /**
-   * 아이디
+   * 제목
    */
   @Prop({ type: String, required: true })
   title: string;
 
   /**
-   * 비밀번호
+   * 내용
    */
   @Prop({ type: String, required: true })
   content: string;
+
+  /**
+   * 첨부파일
+   */
+  @Prop({ type: AttachementsSchema })
+  attachements: Attachements;
 
   /**
    * 활성화 여부
