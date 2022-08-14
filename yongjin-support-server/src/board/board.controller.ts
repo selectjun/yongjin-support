@@ -7,8 +7,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -24,6 +27,7 @@ import { Types } from 'mongoose';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BOARD_BLOCK_SIZE } from 'src/common/constants';
 import { ReqUser } from 'src/common/decorators/req-user.decorator';
+import { FileUtil } from 'src/utils/file.util';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import { UpdateBoardDto } from './dtos/update-board.dto';
@@ -38,7 +42,7 @@ export class BoardController {
    * 생성자
    * @param boardService 게시판 Service
    */
-  constructor(private boardService: BoardService) {}
+  constructor(private boardService: BoardService, private fileUtil: FileUtil) {}
 
   /**
    * 게시물 조회
@@ -55,7 +59,6 @@ export class BoardController {
     description: '알 수 없는 에러가 발생하였습니다.',
   })
   @ApiParam({ name: '_id' })
-  @UseGuards(JwtAuthGuard)
   @Get(':_id')
   async getBoard(@Param('_id') _id: Types.ObjectId) {
     const board = await this.boardService.getBoard(_id);
@@ -81,11 +84,10 @@ export class BoardController {
     description: '알 수 없는 에러가 발생하였습니다.',
   })
   @ApiQuery({ name: 'page', type: Number })
-  @UseGuards(JwtAuthGuard)
   @Get()
-  async getBoardList(@ReqUser() user, @Query('page') page: number = 1) {
-    const boardList = await this.boardService.getBoardList(user.userId, page);
-    const total = await this.boardService.countBoard(user.userId);
+  async getBoardList(@Query('page') page: number = 1) {
+    const boardList = await this.boardService.getBoardList(page);
+    const total = await this.boardService.countBoard();
 
     return {
       boardList,
@@ -115,11 +117,19 @@ export class BoardController {
   })
   @ApiBody({ type: CreateBoardDto })
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('attachments'))
   @Post()
-  async createBoard(@ReqUser() user, @Body() createBoardDto: CreateBoardDto) {
+  async createBoard(
+    @ReqUser() user,
+    @Body() createBoardDto: CreateBoardDto,
+    @UploadedFile() attachments: Express.Multer.File,
+  ) {
+    const phigicalFile = this.fileUtil.getPhigicalFileFormat(attachments);
+
     const board = await this.boardService.createBoard(
       user.userId,
       createBoardDto,
+      phigicalFile,
     );
 
     return {
@@ -149,16 +159,21 @@ export class BoardController {
   @ApiParam({ name: '_id', description: '게시물 ID' })
   @ApiBody({ type: UpdateBoardDto })
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('attachments'))
   @Patch(':_id')
   async updateBoard(
     @ReqUser() user,
     @Param('_id') _id: Types.ObjectId,
     @Body() updateBoardDto: UpdateBoardDto,
+    @UploadedFile() attachments: Express.Multer.File,
   ) {
+    const phigicalFile = this.fileUtil.getPhigicalFileFormat(attachments);
+
     const board = await this.boardService.updateBoard(
       _id,
       user.userId,
       updateBoardDto,
+      phigicalFile,
     );
 
     return {

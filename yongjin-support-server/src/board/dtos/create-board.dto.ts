@@ -1,3 +1,4 @@
+import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
@@ -24,4 +25,14 @@ export class CreateBoardDto {
   })
   @IsNotEmpty({ message: '내용을 입력해주세요.' })
   content: string;
+
+  /**
+   * 첨부파일
+   */
+  @ApiProperty({
+    description: '첨부파일',
+    required: false,
+  })
+  @Optional()
+  attachments: Express.Multer.File;
 }

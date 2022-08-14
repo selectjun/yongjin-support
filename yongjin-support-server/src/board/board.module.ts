@@ -20,5 +20,6 @@ import { Board, BoardSchema } from './schemas/board.schema';
   ],
   controllers: [BoardController],
   providers: [BoardService, FileUtil],
+  exports: [BoardService],
 })
 export class BoardModule {}

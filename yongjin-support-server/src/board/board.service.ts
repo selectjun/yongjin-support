@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import { BOARD_BLOCK_SIZE } from 'src/common/constants';
+import { TPysicalFile } from 'src/types/file.type';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import { UpdateBoardDto } from './dtos/update-board.dto';
 import { Board, BoardDocument } from './schemas/board.schema';
@@ -50,7 +51,7 @@ export class BoardService {
           as: 'created_by',
         },
       },
-      { $unwind: '$updated_by' },
+      { $unwind: '$created_by' },
       {
         $lookup: {
           from: 'users',
@@ -88,7 +89,82 @@ export class BoardService {
    * @param page 페이지
    * @returns 게시물 목록
    */
-  async getBoardList(created_by: Types.ObjectId, page: number) {
+  async getBoardList(page: number) {
+    return await this.boardModel.aggregate([
+      {
+        $match: {
+          is_activate: true,
+        },
+      },
+      {
+        $skip: page * BOARD_BLOCK_SIZE,
+      },
+      {
+        $limit: BOARD_BLOCK_SIZE,
+      },
+      {
+        $sort: {
+          created_by: -1,
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            userId: '$created_by',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$userId'],
+                },
+              },
+            },
+            {
+              $project: {
+                password: 0,
+              },
+            },
+          ],
+          as: 'created_by',
+        },
+      },
+      { $unwind: '$created_by' },
+      {
+        $lookup: {
+          from: 'users',
+          let: {
+            userId: '$updated_by',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', '$$userId'],
+                },
+              },
+            },
+            {
+              $project: {
+                password: 0,
+              },
+            },
+          ],
+          as: 'updated_by',
+        },
+      },
+      { $unwind: '$updated_by' },
+    ]);
+  }
+
+  /**
+   * 게시물 목록 조회 by created_by
+   * @param created_by 생성자 ObjectId
+   * @param page 페이지
+   * @returns 게시물 목록
+   */
+  async getBoardListByCreatedBy(created_by: Types.ObjectId, page: number) {
     return await this.boardModel.aggregate([
       {
         $match: {
@@ -130,7 +206,7 @@ export class BoardService {
           as: 'created_by',
         },
       },
-      { $unwind: '$updated_by' },
+      { $unwind: '$created_by' },
       {
         $lookup: {
           from: 'users',
@@ -164,9 +240,14 @@ export class BoardService {
    * @param createBoardDto 게시물 생성 데이터
    * @returns 게시물
    */
-  async createBoard(userId: Types.ObjectId, createBoardDto: CreateBoardDto) {
+  async createBoard(
+    userId: Types.ObjectId,
+    createBoardDto: CreateBoardDto,
+    attachments: TPysicalFile,
+  ) {
     const board = new this.boardModel({
       ...createBoardDto,
+      attachments,
       created_by: userId,
       updated_by: userId,
       created_at: new Date(),
@@ -188,15 +269,24 @@ export class BoardService {
     _id: Types.ObjectId,
     updated_by: Types.ObjectId,
     updateBoardDto: UpdateBoardDto,
+    attachments: TPysicalFile,
   ) {
-    return await this.boardModel.updateOne(
-      { _id: new mongoose.Types.ObjectId(_id) },
-      {
-        ...updateBoardDto,
-        updated_by: updated_by,
-        updated_at: new Date(),
-      },
-    );
+    const board = await this.boardModel.findOne({
+      _id: new mongoose.Types.ObjectId(_id),
+    });
+
+    // TODO: 게시물 파일 업데이트 처리하기
+    board.title = updateBoardDto.title;
+    board.content = updateBoardDto.content;
+    // board.updated_by = updated_by;
+    board.updated_at = new Date();
+    if (attachments) board.attachments = attachments;
+
+    await board.save();
+
+    const nextBoard = await this.getBoard(board._id);
+
+    return nextBoard;
   }
 
   /**
@@ -220,7 +310,20 @@ export class BoardService {
    * @param created_by 생성자 ObjectId
    * @returns 게시물 갯수
    */
-  async countBoard(created_by: Types.ObjectId) {
+  async countBoard() {
+    return await this.boardModel
+      .find({
+        is_activate: true,
+      })
+      .countDocuments();
+  }
+
+  /**
+   * 게시물 갯수 조회 by created_by
+   * @param created_by 생성자 ObjectId
+   * @returns 게시물 갯수
+   */
+  async countBoardByCreatedBy(created_by: Types.ObjectId) {
     return await this.boardModel
       .find({
         created_by: new mongoose.Types.ObjectId(created_by),
