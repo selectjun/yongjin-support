@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 /**
  * 첨부파일 Subschema Type
  */
-export type AttachementsDocument = Attachements & Document;
+export type AttachmentsDocument = Attachments & Document;
 
 /**
  * 첨부파일
@@ -12,7 +12,7 @@ export type AttachementsDocument = Attachements & Document;
 @Schema({
   _id: false,
 })
-export class Attachements {
+export class Attachments {
   /**
    * 원본 파일 이름
    */
@@ -41,4 +41,4 @@ export class Attachements {
 /**
  * 첨부파일 Schema
  */
-export const AttachementsSchema = SchemaFactory.createForClass(Attachements);
+export const AttachmentsSchema = SchemaFactory.createForClass(Attachments);
