@@ -6,6 +6,7 @@ import { validate } from './env.validation';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UtilsModule } from './utils/utils.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UtilsModule } from './utils/utils.module';
     UserModule,
     BoardModule,
     UtilsModule,
+    FileModule,
   ],
 })
 export class AppModule {}

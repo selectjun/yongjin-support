@@ -2,13 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MulterModule } from '@nestjs/platform-express';
-import { FileUtil } from 'src/utils/file.util';
+import { FileService } from 'src/file/file.service';
 import { BoardController } from './board.controller';
 import { BoardService } from './board.service';
 import { Board, BoardSchema } from './schemas/board.schema';
 
 @Module({
   imports: [
+    ConfigModule,
     MongooseModule.forFeature([{ name: Board.name, schema: BoardSchema }]),
     MulterModule.registerAsync({
       imports: [ConfigModule],
@@ -19,7 +20,7 @@ import { Board, BoardSchema } from './schemas/board.schema';
     }),
   ],
   controllers: [BoardController],
-  providers: [BoardService, FileUtil],
+  providers: [BoardService, FileService],
   exports: [BoardService],
 })
 export class BoardModule {}

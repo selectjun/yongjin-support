@@ -27,7 +27,7 @@ import { Types } from 'mongoose';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BOARD_BLOCK_SIZE } from 'src/common/constants';
 import { ReqUser } from 'src/common/decorators/req-user.decorator';
-import { FileUtil } from 'src/utils/file.util';
+import { FileService } from 'src/file/file.service';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import { UpdateBoardDto } from './dtos/update-board.dto';
@@ -41,8 +41,12 @@ export class BoardController {
   /**
    * 생성자
    * @param boardService 게시판 Service
+   * @param fileService 파일 Service
    */
-  constructor(private boardService: BoardService, private fileUtil: FileUtil) {}
+  constructor(
+    private boardService: BoardService,
+    private fileService: FileService,
+  ) {}
 
   /**
    * 게시물 조회
@@ -124,7 +128,7 @@ export class BoardController {
     @Body() createBoardDto: CreateBoardDto,
     @UploadedFile() attachments: Express.Multer.File,
   ) {
-    const phigicalFile = this.fileUtil.getPhigicalFileFormat(attachments);
+    const phigicalFile = this.fileService.getPhigicalFileFormat(attachments);
 
     const board = await this.boardService.createBoard(
       user.userId,
@@ -168,7 +172,7 @@ export class BoardController {
     @Body() updateBoardDto: UpdateBoardDto,
     @UploadedFile() attachments: Express.Multer.File,
   ) {
-    const phigicalFile = this.fileUtil.getPhigicalFileFormat(attachments);
+    const phigicalFile = this.fileService.getPhigicalFileFormat(attachments);
 
     const board = await this.boardService.updateBoard(
       _id,
