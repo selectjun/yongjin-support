@@ -244,7 +244,7 @@ export class BoardService {
   async createBoard(
     userId: Types.ObjectId,
     createBoardDto: CreateBoardDto,
-    attachments: any,
+    attachments: Attachments,
   ) {
     const board = new this.boardModel({
       ...createBoardDto,
