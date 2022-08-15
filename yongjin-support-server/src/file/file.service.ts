@@ -15,14 +15,21 @@ export class FileService {
     return {
       originalName: originalname,
       mimeType: mimetype,
-      fileName: filename + '.' + ext,
+      fileName: filename,
+      ext,
       size,
     };
   }
 
-  getDownloadUrl(dest: string, fileName: string): string {
+  getDownloadPath(dest: string, fileName: string): string {
     return `${this.configService.get<string>(
       'UPLOAD_BASIC_DIRECTORY',
     )}/${dest}/${fileName}`;
+  }
+
+  getDownloadUrl(dest: string, fileName: string): string {
+    return `${this.configService.get<string>(
+      'UPLOAD_BASIC_URL',
+    )}/file/${dest}/${fileName}`;
   }
 }

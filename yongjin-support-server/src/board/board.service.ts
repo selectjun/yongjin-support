@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import { BOARD_BLOCK_SIZE } from 'src/common/constants';
 import { Attachments } from 'src/common/subschemas/attachments.subschema';
+import { FileService } from 'src/file/file.service';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import { UpdateBoardDto } from './dtos/update-board.dto';
 import { Board, BoardDocument } from './schemas/board.schema';
@@ -20,6 +21,7 @@ export class BoardService {
   constructor(
     private configService: ConfigService,
     @InjectModel(Board.name) private boardModel: Model<BoardDocument>,
+    private fileService: FileService,
   ) {}
 
   /**
@@ -82,6 +84,19 @@ export class BoardService {
 
     const [board] = boards;
 
+    if (board && board?.attachments) {
+      const {
+        attachments: { fileName, originalName },
+      } = board;
+
+      board.attachments.url = `${this.fileService.getDownloadUrl(
+        'board',
+        fileName,
+      )}?originalName=${originalName}`;
+    }
+
+    console.log(board);
+
     return board;
   }
 
@@ -92,7 +107,7 @@ export class BoardService {
    * @returns 게시물 목록
    */
   async getBoardList(page: number) {
-    return await this.boardModel.aggregate([
+    const boards = await this.boardModel.aggregate([
       {
         $match: {
           is_activate: true,
@@ -158,6 +173,23 @@ export class BoardService {
       },
       { $unwind: '$updated_by' },
     ]);
+
+    const nextBoards = boards?.map((board) => {
+      if (board && board?.attachments) {
+        const {
+          attachments: { fileName, originalName },
+        } = board;
+
+        board.attachments.url = `${this.fileService.getDownloadUrl(
+          'board',
+          fileName,
+        )}?originalName=${originalName}`;
+      }
+
+      return board;
+    });
+
+    return nextBoards;
   }
 
   /**
@@ -167,7 +199,7 @@ export class BoardService {
    * @returns 게시물 목록
    */
   async getBoardListByCreatedBy(created_by: Types.ObjectId, page: number) {
-    return await this.boardModel.aggregate([
+    const boards = await this.boardModel.aggregate([
       {
         $match: {
           created_by: new mongoose.Types.ObjectId(created_by),
@@ -234,6 +266,23 @@ export class BoardService {
       },
       { $unwind: '$updated_by' },
     ]);
+
+    const nextBoards = boards?.map((board) => {
+      if (board && board?.attachments) {
+        const {
+          attachments: { fileName, originalName },
+        } = board;
+
+        board.attachments.url = `${this.fileService.getDownloadUrl(
+          'board',
+          fileName,
+        )}?originalName=${originalName}`;
+      }
+
+      return board;
+    });
+
+    return nextBoards;
   }
 
   /**

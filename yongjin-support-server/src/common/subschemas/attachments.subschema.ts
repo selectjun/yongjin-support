@@ -32,6 +32,12 @@ export class Attachments {
   fileName: string;
 
   /**
+   * 확장자
+   */
+  @Prop({ type: String, required: true })
+  ext: string;
+
+  /**
    * 파일 사이즈
    */
   @Prop({ type: Number, required: true })

@@ -15,7 +15,7 @@ export class FileController {
   ) {
     if (!originalName) res.end();
 
-    const physicalPath = this.fileService.getDownloadUrl(dest, fileName);
+    const physicalPath = this.fileService.getDownloadPath(dest, fileName);
 
     res.download(physicalPath, originalName);
   }
