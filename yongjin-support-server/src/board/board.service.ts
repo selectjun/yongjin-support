@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import { BOARD_BLOCK_SIZE } from 'src/common/constants';
@@ -19,7 +18,6 @@ export class BoardService {
    * @param boardModel 게시판 Model
    */
   constructor(
-    private configService: ConfigService,
     @InjectModel(Board.name) private boardModel: Model<BoardDocument>,
     private fileService: FileService,
   ) {}
