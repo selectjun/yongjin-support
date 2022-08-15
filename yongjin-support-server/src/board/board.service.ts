@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import { BOARD_BLOCK_SIZE } from 'src/common/constants';
 import { Attachments } from 'src/common/subschemas/attachments.subschema';
-import { TPysicalFile } from 'src/types/file.type';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import { UpdateBoardDto } from './dtos/update-board.dto';
 import { Board, BoardDocument } from './schemas/board.schema';
