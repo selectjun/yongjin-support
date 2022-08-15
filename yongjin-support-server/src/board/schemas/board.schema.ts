@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import {
   Attachments,
-  AttachmentsSchema,
+  AttachmentsSubchema,
 } from 'src/common/subschemas/attachments.subschema';
 import { User } from 'src/user/schemas/user.schema';
 
@@ -31,7 +31,7 @@ export class Board {
   /**
    * 첨부파일
    */
-  @Prop({ type: AttachmentsSchema, default: null })
+  @Prop({ type: AttachmentsSubchema, default: null })
   attachments: Attachments;
 
   /**

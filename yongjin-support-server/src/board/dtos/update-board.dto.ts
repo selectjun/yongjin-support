@@ -1,5 +1,7 @@
+import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
+import { Attachments } from 'src/common/subschemas/attachments.subschema';
 
 /**
  * 게시물 수정 Dto
@@ -24,4 +26,14 @@ export class UpdateBoardDto {
   })
   @IsNotEmpty({ message: '내용을 입력해주세요.' })
   content: string;
+
+  /**
+   * 첨부파일
+   */
+  @ApiProperty({
+    description: '첨부파일',
+    required: false,
+  })
+  @Optional()
+  attachments?: Attachments;
 }

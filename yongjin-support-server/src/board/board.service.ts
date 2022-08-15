@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, Types } from 'mongoose';
 import { BOARD_BLOCK_SIZE } from 'src/common/constants';
+import { Attachments } from 'src/common/subschemas/attachments.subschema';
 import { TPysicalFile } from 'src/types/file.type';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import { UpdateBoardDto } from './dtos/update-board.dto';
@@ -243,7 +244,7 @@ export class BoardService {
   async createBoard(
     userId: Types.ObjectId,
     createBoardDto: CreateBoardDto,
-    attachments: TPysicalFile,
+    attachments: any,
   ) {
     const board = new this.boardModel({
       ...createBoardDto,
@@ -264,29 +265,35 @@ export class BoardService {
    * @param _id 게시물 ObjectId
    * @param updated_by 수정자
    * @param updateBoardDto 게시물 수정 데이터
+   * @param attachments 첨부파일
    */
   async updateBoard(
     _id: Types.ObjectId,
     updated_by: Types.ObjectId,
     updateBoardDto: UpdateBoardDto,
-    attachments: TPysicalFile,
+    attachments: Attachments,
   ) {
-    const board = await this.boardModel.findOne({
-      _id: new mongoose.Types.ObjectId(_id),
-    });
+    const board = await this.boardModel
+      .findOne({
+        _id: new mongoose.Types.ObjectId(_id),
+      })
+      .lean();
 
-    // TODO: 게시물 파일 업데이트 처리하기
-    board.title = updateBoardDto.title;
-    board.content = updateBoardDto.content;
-    // board.updated_by = updated_by;
-    board.updated_at = new Date();
-    if (attachments) board.attachments = attachments;
+    const nextBoard: any = {
+      ...board,
+      title: updateBoardDto.title,
+      content: updateBoardDto.content,
+      updated_by,
+      updated_at: new Date(),
+    };
 
-    await board.save();
+    if (attachments) nextBoard.attachments = attachments;
+    else if (!updateBoardDto?.attachments) nextBoard.attachments = null;
 
-    const nextBoard = await this.getBoard(board._id);
-
-    return nextBoard;
+    return await this.boardModel.updateOne(
+      { _id: new mongoose.Types.ObjectId(_id) },
+      nextBoard,
+    );
   }
 
   /**

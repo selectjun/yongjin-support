@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { Attachments } from 'src/common/subschemas/attachments.subschema';
 
 @Injectable()
 export class FileUtil {
-  getPhigicalFileFormat(file: Express.Multer.File) {
+  getPhigicalFileFormat(file: Express.Multer.File): Attachments {
     if (!file) return null;
 
     const { originalname, mimetype, filename, size } = file;

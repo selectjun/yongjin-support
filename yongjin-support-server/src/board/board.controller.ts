@@ -142,6 +142,7 @@ export class BoardController {
    * @param user 사용자 정보
    * @param _id 게시물 ObjectId
    * @param updateBoardDto 게시물 수정 데이터
+   * @param attachments 첨부파일
    * @returns
    */
   @ApiOkResponse({

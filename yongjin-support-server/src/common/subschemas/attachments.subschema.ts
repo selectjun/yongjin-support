@@ -41,4 +41,4 @@ export class Attachments {
 /**
  * 첨부파일 Schema
  */
-export const AttachmentsSchema = SchemaFactory.createForClass(Attachments);
+export const AttachmentsSubchema = SchemaFactory.createForClass(Attachments);
