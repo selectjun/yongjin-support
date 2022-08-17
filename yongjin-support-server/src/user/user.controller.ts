@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
   HttpStatus,
   Param,
   Post,
@@ -25,6 +24,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BoardService } from 'src/board/board.service';
 import { USER_BOARD_BLOCK_SIZE } from 'src/common/constants';
 import { ReqUser } from 'src/common/decorators/req-user.decorator';
+import { InternalServerErrorException } from 'src/common/exceptions/InternalServerErrorException';
+import { UsernameDuplicateException } from 'src/common/exceptions/UsernameDuplicateException';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UserService } from './user.service';
 
@@ -54,29 +55,40 @@ export class UserController {
   @ApiBadRequestResponse({
     description: '요청 데이터가 누락되었습니다.',
   })
-  @ApiUnauthorizedResponse({
-    description: '권한이 없습니다.',
-  })
   @ApiInternalServerErrorResponse({
     description: '알 수 없는 에러가 발생하였습니다.',
   })
   @ApiBody({ type: CreateUserDto })
   @Post('')
   async createUser(@Body() createUserDto: CreateUserDto) {
-    // 회원 중복 확인
-    const isExistUser = await this.userService.isExistUser(
-      createUserDto.username,
-    );
-    if (isExistUser) {
-      throw new HttpException(
-        '사용자 아이디가 존재합니다.',
-        HttpStatus.BAD_REQUEST,
+    try {
+      // 회원 중복 확인
+      const isExistUser = await this.userService.isExistUser(
+        createUserDto.username,
       );
+      if (isExistUser) {
+        throw new UsernameDuplicateException();
+      }
+
+      const user = await this.userService.createUser(createUserDto);
+
+      return {
+        data: { user },
+        status: HttpStatus.CREATED,
+        message: '사용자가 생성되었습니다.',
+      };
+    } catch (e) {
+      const isUsernameDuplicateException = e
+        .toString()
+        .includes('UsernameDuplicateException');
+      if (isUsernameDuplicateException) {
+        throw e;
+      } else {
+        throw new InternalServerErrorException(
+          '알 수 없는 에러가 발생하였습니다.',
+        );
+      }
     }
-
-    const user = await this.userService.createUser(createUserDto);
-
-    return { user };
   }
 
   /**
@@ -96,7 +108,17 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('')
   async getUser(@ReqUser() user) {
-    return { user };
+    try {
+      return {
+        data: { user },
+        status: HttpStatus.OK,
+        message: '사용자를 조회하였습니다.',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 
   /**
@@ -118,18 +140,23 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('board')
   async getUserBoardList(@ReqUser() user, @Query('page') page: number = 1) {
-    const boardList = await this.boardService.getBoardListByCreatedBy(
-      user.userId,
-      page,
-    );
-    const total = await this.boardService.countBoardByCreatedBy(user.userId);
+    try {
+      const boardList = await this.boardService.getBoardListByCreatedBy(
+        user.userId,
+        page,
+      );
+      const total = await this.boardService.countBoardByCreatedBy(user.userId);
 
-    return {
-      boardList,
-      page,
-      blockSize: USER_BOARD_BLOCK_SIZE,
-      total,
-    };
+      return {
+        data: { boardList, page, blockSize: USER_BOARD_BLOCK_SIZE, total },
+        status: HttpStatus.OK,
+        message: '게시물 목록을 조회하였습니다.',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 
   /**
@@ -150,10 +177,18 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('board/:id')
   async getUserBoard(@Param('_id') _id: Types.ObjectId) {
-    const board = await this.boardService.getBoard(_id);
+    try {
+      const board = await this.boardService.getBoard(_id);
 
-    return {
-      board,
-    };
+      return {
+        data: { board },
+        status: HttpStatus.OK,
+        message: '게시물을 조회하였습니다.',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 }

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Headers,
+  HttpStatus,
   Post,
   Request,
   UseGuards,
@@ -12,6 +13,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { InternalServerErrorException } from 'src/common/exceptions/InternalServerErrorException';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -44,11 +46,20 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req, @Body() loginDto: LoginDto) {
-    console.log(req);
-    const user = await this.authService.login(req.user);
-    const { password, ...result } = user;
+    try {
+      const user = await this.authService.login(req.user);
+      const { password, ...result } = user;
 
-    return result;
+      return {
+        data: { user: result },
+        status: HttpStatus.CREATED,
+        message: '로그인에 성공하였습니다',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 
   /**
@@ -65,12 +76,22 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('refresh')
   async refreshToken(@Headers() headers: any) {
-    const { authorization } = headers;
+    try {
+      const { authorization } = headers;
 
-    const nextToken = await this.authService.refreshToken(
-      authorization.replace(/Bearer /, ''),
-    );
+      const nextToken = await this.authService.refreshToken(
+        authorization.replace(/Bearer /, ''),
+      );
 
-    return nextToken;
+      return {
+        data: nextToken,
+        status: HttpStatus.CREATED,
+        message: '토근 갱신에 성공하였습니다.',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -27,6 +28,7 @@ import { Types } from 'mongoose';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { BOARD_BLOCK_SIZE } from 'src/common/constants';
 import { ReqUser } from 'src/common/decorators/req-user.decorator';
+import { InternalServerErrorException } from 'src/common/exceptions/InternalServerErrorException';
 import { FileService } from 'src/file/file.service';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dtos/create-board.dto';
@@ -65,11 +67,19 @@ export class BoardController {
   @ApiParam({ name: '_id' })
   @Get(':_id')
   async getBoard(@Param('_id') _id: Types.ObjectId) {
-    const board = await this.boardService.getBoard(_id);
+    try {
+      const board = await this.boardService.getBoard(_id);
 
-    return {
-      board,
-    };
+      return {
+        data: { board },
+        status: HttpStatus.OK,
+        message: '게시물을 조회하였습니다.',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 
   /**
@@ -90,15 +100,20 @@ export class BoardController {
   @ApiQuery({ name: 'page', type: Number })
   @Get()
   async getBoardList(@Query('page') page: number = 1) {
-    const boardList = await this.boardService.getBoardList(page);
-    const total = await this.boardService.countBoard();
+    try {
+      const boardList = await this.boardService.getBoardList(page);
+      const total = await this.boardService.countBoard();
 
-    return {
-      boardList,
-      page,
-      blockSize: BOARD_BLOCK_SIZE,
-      total,
-    };
+      return {
+        data: { boardList, page, blockSize: BOARD_BLOCK_SIZE, total },
+        status: HttpStatus.OK,
+        message: '게시물 목록을 조회하였습니다.',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 
   /**
@@ -128,17 +143,24 @@ export class BoardController {
     @Body() createBoardDto: CreateBoardDto,
     @UploadedFile() attachments: Express.Multer.File,
   ) {
-    const phigicalFile = this.fileService.getPhigicalFileFormat(attachments);
+    try {
+      const phigicalFile = this.fileService.getPhigicalFileFormat(attachments);
 
-    const board = await this.boardService.createBoard(
-      user.userId,
-      createBoardDto,
-      phigicalFile,
-    );
+      await this.boardService.createBoard(
+        user.userId,
+        createBoardDto,
+        phigicalFile,
+      );
 
-    return {
-      board,
-    };
+      return {
+        status: HttpStatus.CREATED,
+        message: '게시물이 생성되었습니다.',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 
   /**
@@ -172,18 +194,25 @@ export class BoardController {
     @Body() updateBoardDto: UpdateBoardDto,
     @UploadedFile() attachments: Express.Multer.File,
   ) {
-    const phigicalFile = this.fileService.getPhigicalFileFormat(attachments);
+    try {
+      const phigicalFile = this.fileService.getPhigicalFileFormat(attachments);
 
-    const board = await this.boardService.updateBoard(
-      _id,
-      user.userId,
-      updateBoardDto,
-      phigicalFile,
-    );
+      await this.boardService.updateBoard(
+        _id,
+        user.userId,
+        updateBoardDto,
+        phigicalFile,
+      );
 
-    return {
-      board,
-    };
+      return {
+        status: HttpStatus.OK,
+        message: '게시물 수정을 하였습니다.',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 
   /**
@@ -193,7 +222,7 @@ export class BoardController {
    * @returns
    */
   @ApiOkResponse({
-    description: '게시물 목록을 조회하였습니다.',
+    description: '게시물 삭제하였습니다.',
   })
   @ApiUnauthorizedResponse({
     description: '권한이 없습니다.',
@@ -204,10 +233,17 @@ export class BoardController {
   @UseGuards(JwtAuthGuard)
   @Delete(':_id')
   async deleteBoard(@ReqUser() user, @Param('_id') _id: Types.ObjectId) {
-    const board = await this.boardService.deleteBoard(_id, user.userId);
+    try {
+      await this.boardService.deleteBoard(_id, user.userId);
 
-    return {
-      board,
-    };
+      return {
+        status: HttpStatus.OK,
+        message: '게시물 삭제하였습니다.',
+      };
+    } catch (e) {
+      throw new InternalServerErrorException(
+        '알 수 없는 에러가 발생하였습니다.',
+      );
+    }
   }
 }
